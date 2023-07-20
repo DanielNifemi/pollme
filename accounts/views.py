@@ -35,10 +35,10 @@ def create_user(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             fullname = form.cleaned_data['fullname']
-            phone_number1 = form.cleaned_data['phone_number1']
+            phone_number = form.cleaned_data['phone_number']
             phone_number2 = form.cleaned_data['phone_number2']
 
-            if phone_number1 != phone_number2:
+            if phone_number != phone_number2:
                 check1 = True
                 messages.error(request, 'Phone Number did not match!',
                                extra_tags='alert alert-warning alert-dismissible fade show')
@@ -53,7 +53,7 @@ def create_user(request):
                 return redirect('accounts:register')
             else:
                 user = User.objects.create_user(
-                    fullname=fullname, phone_number=phone_number1)
+                    fullname=fullname, phone_number=phone_number)
                 messages.success(
                     request, f'Thanks for registering {user.fullname}.', extra_tags='alert alert-success '
                                                                                     'alert-dismissible fade show')

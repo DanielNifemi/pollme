@@ -8,9 +8,9 @@ from django.http import HttpResponse
 
 def login_user(request):
     if request.method == 'POST':
-        fullname = request.POST.get('fullname')
+        username = request.POST.get('username')
         phone_number = request.POST.get('phone_number')
-        user = authenticate(fullname=fullname, phone_number=phone_number)
+        user = authenticate(username=username, phone_number=phone_number)
 
         if user is not None:
             login(request, user)
@@ -34,7 +34,7 @@ def create_user(request):
         check2 = False
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            fullname = form.cleaned_data['fullname']
+            username = form.cleaned_data['username']
             phone_number = form.cleaned_data['phone_number']
             phone_number2 = form.cleaned_data['phone_number2']
 
@@ -42,7 +42,7 @@ def create_user(request):
                 check1 = True
                 messages.error(request, 'Phone Number did not match!',
                                extra_tags='alert alert-warning alert-dismissible fade show')
-            if User.objects.filter(fullname=fullname).exists():
+            if User.objects.filter(username=username).exists():
                 check2 = True
                 messages.error(request, 'Full Name already exists!',
                                extra_tags='alert alert-warning alert-dismissible fade show')
@@ -53,9 +53,9 @@ def create_user(request):
                 return redirect('accounts:register')
             else:
                 user = User.objects.create_user(
-                    fullname=fullname, phone_number=phone_number)
+                    username=username, phone_number=phone_number)
                 messages.success(
-                    request, f'Thanks for registering {user.fullname}.', extra_tags='alert alert-success '
+                    request, f'Thanks for registering {user.username}.', extra_tags='alert alert-success '
                                                                                     'alert-dismissible fade show')
                 return redirect('accounts:login')
     else:

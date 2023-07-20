@@ -9,15 +9,15 @@ from django.http import HttpResponse
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
-        phone_number = request.POST.get('phone_number')
-        user = authenticate(username=username, phone_number=phone_number)
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
 
         if user is not None:
             login(request, user)
             redirect_url = request.GET.get('next', 'home')
             return redirect(redirect_url)
         else:
-            messages.error(request, "Full Name Or PhoneNumber is incorrect!",
+            messages.error(request, "Full Name Or Phone Number is incorrect!",
                            extra_tags='alert alert-warning alert-dismissible fade show')
 
     return render(request, 'accounts/login.html')
@@ -35,10 +35,10 @@ def create_user(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
-            phone_number = form.cleaned_data['phone_number']
-            phone_number2 = form.cleaned_data['phone_number2']
+            password = form.cleaned_data['password']
+            password2 = form.cleaned_data['password2']
 
-            if phone_number != phone_number2:
+            if password != password2:
                 check1 = True
                 messages.error(request, 'Phone Number did not match!',
                                extra_tags='alert alert-warning alert-dismissible fade show')
@@ -53,7 +53,7 @@ def create_user(request):
                 return redirect('accounts:register')
             else:
                 user = User.objects.create_user(
-                    username=username, phone_number=phone_number)
+                    username=username, password=password)
                 messages.success(
                     request, f'Thanks for registering {user.username}.', extra_tags='alert alert-success '
                                                                                     'alert-dismissible fade show')

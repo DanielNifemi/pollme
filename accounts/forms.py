@@ -1,12 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
 
 
 class UserRegistrationForm(forms.Form):
-    fullname = forms.CharField(label='Full Name', max_length=100, min_length=5,
+    username = forms.CharField(label='Full Name', max_length=100, min_length=5,
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
-    phone_number = forms.CharField(label='Phone Number', max_length=14, min_length=11,
-                                   widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    phone_number2 = forms.CharField(label='Confirm Phone Number',
-                                    max_length=14, min_length=11,
-                                    widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Phone Number', max_length=14, min_length=11,
+                               widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label='Confirm Phone Number',
+                                max_length=14, min_length=11,
+                                widget=forms.NumberInput(attrs={'class': 'form-control'}))

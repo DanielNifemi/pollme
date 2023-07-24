@@ -57,7 +57,7 @@ def create_user(request):
                 messages.success(
                     request, f'Thanks for registering {user.username}.', extra_tags='alert alert-success '
                                                                                     'alert-dismissible fade show')
-                return redirect('accounts:login')
+                return redirect('polls:list')
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})

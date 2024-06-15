@@ -1,51 +1,63 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <div class="vh-100 d-flex justify-content-center align-items-center p-5" id="send-code-content">
-        <div class="col-md-5 p-5 shadow-sm border rounded-5 border-primary bg-white">
-            <h2 class="text-center mb-4 text-primary">Send Verification Code</h2>
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert {{ message.tags }}">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <form action="" method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" class="form-control border border-primary" id="email"
-                           name="email" placeholder="Enter Email Address">
-                </div>
-                <div class="mb-3">
-                    <label for="phone_number" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control border border-primary" id="phone_number"
-                           name="phone_number" placeholder="Enter Phone Number">
-                </div>
-                <div class="mb-3">
-                    <label for="contact_method" class="form-label">Contact Method</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="contact_method" id="email_option" value="email" required>
-                        <label class="form-check-label" for="email_option">Email</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="contact_method" id="sms_option" value="sms" required>
-                        <label class="form-check-label" for="sms_option">SMS</label>
-                    </div>
-                </div>
-                <div class="d-grid">
-                    <button class="btn btn-primary" type="submit">Send Code</button>
-                </div>
-            </form>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Verification Code</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .container h2 {
+            font-size: 2rem;
+            color: #333;
+        }
+        .container p {
+            color: #666;
+            margin: 1rem 0;
+        }
+        .container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .container button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .container button:hover {
+            background-color: #155bb5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Send Verification Code</h2>
+        <form method="POST" action="{% url 'accounts:send_code' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Send Code</button>
+        </form>
     </div>
-{% endblock %}
-
+</body>
+</html>
 
 

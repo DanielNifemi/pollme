@@ -1,4 +1,6 @@
 import random
+import json
+import http.client
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -74,6 +76,7 @@ def create_user(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
+@login_required
 def send_code(request):
     if request.method == 'POST':
         form = UserContactForm(request.POST)
@@ -98,23 +101,33 @@ def send_code(request):
                         fail_silently=False,
                     )
                 elif contact_method == 'sms':
-                    phone_number = request.POST.get('phone_number')
-                    api_url = 'https://www.bulksmsnigeria.com/api/v1/sms/create'
-                    api_token = settings.BULK_SMS_API_TOKEN
-                    sender = 'YourSenderID'
-                    body = f'Your verification code is {verification_code}'
+                    if not phone_number:
+                        return JsonResponse({'message': 'Phone number is required for SMS verification'}, status=400)
+                    request.session['phone_number'] = phone_number
+                    conn = http.client.HTTPSConnection("textflow-sms-api.p.rapidapi.com")
+                    payload = json.dumps({
+                        "to": phone_number,
+                        "message": f"Your verification code is {verification_code}",
+                        "sender": "YourSenderID"
+                    })
 
-                    payload = {
-                        'api_token': api_token,
-                        'from': sender,
-                        'to': phone_number,
-                        'body': body,
-                        'dnd': '1'  # Adjust DND option as needed
+                    headers = {
+                        'x-rapidapi-key': "d42f68d9bfmsh597540a8266a3dep1140f1jsnc32c7ba76702",
+                        'x-rapidapi-host': "textflow-sms-api.p.rapidapi.com",
+                        'Content-Type': "application/json"
                     }
+
+                    conn.request("POST", "/service/check", payload, headers)
+                    res = conn.getresponse()
+                    data = res.read()
+                    response_data = json.loads(data.decode("utf-8"))
+
+                    if response_data.get('status') != 'success':
+                        return JsonResponse({'message': response_data.get('message', 'An error occurred')}, status=400)
 
                 return redirect('accounts:verify_code')
             except Exception as e:
-                return render(request, 'accounts/error_sending_code.html')
+                return render(request, 'accounts/error_sending_code.html', {'error': str(e)})
 
     else:
         form = UserContactForm()
@@ -126,33 +139,15 @@ def verify_code(request):
     if request.method == 'POST':
         user_code = request.POST.get('code')
         stored_code = request.session.get('verification_code')
-        email = request.session.get('email')
-        phone_number = request.session.get('phone_number')
 
-        if not email and not phone_number:
-            messages.error(request, 'Email or phone number is not found in session. Please resend the code.',
-                           extra_tags='alert alert-warning alert-dismissible fade show')
-            return redirect('accounts:send_code')
-
-        try:
-            if user_code == stored_code:
-                if email:
-                    user = CustomUser.objects.get(email=email)
-                else:
-                    user = CustomUser.objects.get(phone_number=phone_number)
-                user.is_verified = True
-                user.save()
-                messages.success(request, 'Verification successful.',
-                                 extra_tags='alert alert-success alert-dismissible fade show')
-                return redirect('home')
-            else:
-                messages.error(request, 'Invalid verification code.',
-                               extra_tags='alert alert-danger alert-dismissible fade show')
-                return redirect('accounts:verify_code')
-        except CustomUser.DoesNotExist:
-            messages.error(request, 'User with this email or phone number does not exist.',
-                           extra_tags='alert alert-danger alert-dismissible fade show')
-            return redirect('accounts:send_code')
+        if user_code == stored_code:
+            request.user.is_verified = True
+            request.user.save()
+            messages.success(request, 'Verification successful. Your phone number is verified.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid verification code. Please try again.')
+            return redirect('verify_code')
 
     return render(request, 'accounts/verify_code.html')
 

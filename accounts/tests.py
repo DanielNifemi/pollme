@@ -16,3 +16,21 @@
 #                             )
 #
 # print(validation_request.friendly_name)
+import http.client
+
+conn = http.client.HTTPSConnection("textflow-sms-api.p.rapidapi.com")
+
+payload = "{\"testing\":\"true\"}"
+
+headers = {
+    'x-rapidapi-key': "d42f68d9bfmsh597540a8266a3dep1140f1jsnc32c7ba76702",
+    'x-rapidapi-host': "textflow-sms-api.p.rapidapi.com",
+    'Content-Type': "application/json"
+}
+
+conn.request("POST", "/service/check", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))

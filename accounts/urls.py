@@ -4,10 +4,12 @@ from . import views
 app_name = "accounts"
 
 urlpatterns = [
-    path('register/', views.create_user, name='register'),
-    path('send-code/', views.send_code, name='send_code'),
-    path('verify-code/', views.verify_code, name='verify_code'),
-    path('login/', views.login_user, name='login'),
+    path('', views.index, name='index'),
+    path('authenticate_user/', views.authenticate_user, name='authenticate_user'),
+    path('send_verification_email/', views.send_verification_email, name='send_verification_email'),
+    path('verify_email/', views.verify_email, name='verify_email'),
+    path('login/', views.login_view, name='login'),
     path('logout/', views.logout_user, name='logout'),
-    path('profile/', views.profile, name='profile'),
+    path('profile/view/', views.view_profile, name='view_profile'),
+    path('profile/update/', views.update_profile, name='update_profile'),
 ]

@@ -31,13 +31,7 @@
 
 <body>
     {% include 'includes/navbar.html' %}
-     <nav>
-        <div class="container">
-            <a href="{% url 'home' %}">
-                <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </nav>
+
 
     {% block content %}
     {% endblock content %}

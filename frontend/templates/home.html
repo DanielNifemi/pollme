@@ -8,12 +8,35 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col">
-            <div id="home-content">
-                <h1>Pollme</h1>
-                <h3>Your Choice Matters!</h3>
-                <hr>
-                <a class="btn btn-light btn-lg" href="{% url 'polls:list' %}" role="button">Start Voting!</a>
+        <div class="col-md-8 offset-md-2">
+            <div class="home-content text-center">
+                <h1 class="display-4">Welcome to Pollme</h1>
+                <p class="lead">Your voice matters. Share your opinion on various topics.</p>
+
+                <div class="features mt-5">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <i class="fas fa-poll fa-3x mb-3"></i>
+                            <h3>Create Polls</h3>
+                            <p>Easily create and share polls on any topic.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-vote-yea fa-3x mb-3"></i>
+                            <h3>Vote</h3>
+                            <p>Participate in community polls and see real-time results.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                            <h3>Analyze</h3>
+                            <p>Get insights from poll results with our analytics tools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta mt-5">
+                    <p class="lead">Ready to start?</p>
+                    <a class="btn btn-primary btn-lg" href="{% url 'polls:list' %}" role="button">Explore Polls</a>
+                </div>
             </div>
         </div>
     </div>

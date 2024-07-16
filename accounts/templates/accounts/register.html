@@ -1,11 +1,12 @@
-{% extends 'base.html' %}
+<!-- templates/accounts/register.html -->
+{% extends "accounts/base_auth.html" %}
 
-{% block content %}
-<h2>Register</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
-<p>Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
-{% endblock %}>
+{% block title %}Sign Up{% endblock %}
+
+{% block header %}Create your Account{% endblock %}
+
+{% block button_text %}Sign Up{% endblock %}
+
+{% block alternate_action %}
+Already have an account? <a href="{% url 'accounts:login' %}" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a>
+{% endblock %}

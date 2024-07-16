@@ -1,44 +1,37 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils.timezone import now
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from rest_framework.authtoken.models import Token
+from django.utils import timezone
 
 
-class CustomUser(AbstractUser):
-    phone_number = models.CharField(max_length=14, blank=True, null=True)
-    country_code = models.CharField(max_length=5, blank=True, null=True)
-    is_verified = models.BooleanField(
-        default=False,
-        help_text='Designates whether the user is verified.',
-        verbose_name='verification status'
-    )
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email=None, phone=None, password=None, **extra_fields):
+        if not email and not phone:
+            raise ValueError('Either email or phone number must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, phone=phone, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-    groups = models.ManyToManyField(
-        Group,
-        related_name='custom_user_set',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups'
-    )
-
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='custom_user_set',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions'
-    )
-
-    class Meta:
-        verbose_name = 'user'
-        verbose_name_plural = 'users'
+    def create_superuser(self, email=None, phone=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, phone, password, **extra_fields)
 
 
-class MyUserToken(Token):
-    # Add any additional fields you want to display in the admin
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True, null=True, blank=True)
+    phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    username = models.CharField(max_length=30, unique=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=timezone.now)
 
-    class Meta:
-        verbose_name = "My User Token"
-        verbose_name_plural = "My User Tokens"
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.email or self.phone

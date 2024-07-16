@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>User Search</h2>
+<form method="get" action="{% url 'user_search' %}">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search users...">
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+{% if users %}
+    <h3>Results:</h3>
+    <ul class="list-group">
+    {% for user in users %}
+        <li class="list-group-item">
+            <strong>{{ user.username }}</strong>
+            {% if user.email %}
+                - Email: {{ user.email }}
+            {% endif %}
+            {% if user.phone %}
+                - Phone: {{ user.phone }}
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% elif query %}
+    <p>No users found matching your search.</p>
+{% endif %}
+
+<a href="{% url 'accounts:profile' %}" class="btn btn-secondary">Back to Profile</a>
+{% endblock %}

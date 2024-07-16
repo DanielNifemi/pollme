@@ -1,69 +1,37 @@
+<!-- accounts/templates/accounts/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f8f9fa;
-        }
-        .signin-container {
-            text-align: center;
-        }
-        .signin-button {
-            margin-top: 20px;
-        }
-        .alert {
-            margin-top: 20px;
-        }
-    </style>
 </head>
 <body>
-    <div class="signin-container">
-        <h1>Sign In</h1>
-        <div class="pe_signin_button" data-client-id="11539081348641370419">
-            <script src="https://www.phone.email/sign_in_button_v1.js" async></script>
-        </div>
-        <div class="email_signin_button" data-client-id="11539081348641370419">
-            <script src="https://www.phone.email/sign_in_button_v1.js" async></script>
-        </div>
-        <div class="signin-button"></div>
-        <div class="alert alert-danger" id="error-message" style="display: none;"></div>
+    <div class="pe_signin_button" data-client-id="YOUR_CLIENT_ID">
+        <script src="https://www.phone.email/sign_in_button_v1.js" async></script>
     </div>
 
     <script>
     function phoneEmailListener(userObj){
-        console.log('phoneEmailListener called', userObj);  // Debug statement
         var user_json_url = userObj.user_json_url;
 
         // Send user_json_url to your backend to retrieve user info (i.e. country code and phone number) from this URL.
         fetch('/accounts/authenticate_user/?user_json_url=' + encodeURIComponent(user_json_url))
             .then(response => response.json())
             .then(data => {
-                console.log('Fetch response', data);  // Debug statement
                 if (data.success) {
-                    window.location.href = data.redirect_url;  // Redirect to the home page or another appropriate page
+                    window.location.href = data.redirect_url;
                 } else {
                     console.error(data.error);
-                    document.getElementById('error-message').innerText = data.error;
-                    document.getElementById('error-message').style.display = 'block';
                 }
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                document.getElementById('error-message').innerText = 'An error occurred during the sign-in process. Please try again.';
-                document.getElementById('error-message').style.display = 'block';
             });
 
-        // Delete the following code once you complete integration step 2.
         document.querySelector('.pe_signin_button').insertAdjacentHTML('beforeend', '<span>Phone Verification Successful !! <br />Read following user_json_url from backend to get verified phone number - '+user_json_url+' <br /> Please delete this debug message code from phoneEmailListener function once you implement integration step 2.</span>');
     }
     </script>
 </body>
 </html>
+

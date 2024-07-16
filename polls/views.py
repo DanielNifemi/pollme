@@ -15,8 +15,6 @@ CustomUser = get_user_model()
 def polls_list(request):
     all_polls = Poll.objects.all()
     search_term = ''
-    if not request.user.is_verified:
-        return redirect('accounts:send_code')
 
     if 'name' in request.GET:
         all_polls = all_polls.order_by('text')

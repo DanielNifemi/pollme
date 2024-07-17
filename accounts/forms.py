@@ -17,3 +17,8 @@ class ProfileCompletionForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'profile_picture')
+
+
+class PhoneLoginForm(forms.Form):
+    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'placeholder': 'Enter your phone number'}))
+

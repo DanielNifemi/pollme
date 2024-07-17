@@ -1,33 +1,80 @@
+import requests  # You'll need to install the requests library
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, ProfileCompletionForm
+
+from .forms import CustomUserCreationForm, ProfileCompletionForm, PhoneLoginForm
 from .models import CustomUser
 
 
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+        if 'phone' in request.POST:
+            return handle_phone_auth(request)
+        else:
+            form = CustomUserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                login(request, user)
+                return redirect('home')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'accounts/register.html', {'form': form})
+    phone_form = PhoneLoginForm()
+    return render(request, 'accounts/register.html', {'form': form, 'phone_form': phone_form})
 
 
 def user_login(request):
     if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')
+        if 'phone' in request.POST:
+            return handle_phone_auth(request)
+        else:
+            form = AuthenticationForm(request, data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                login(request, user)
+                return redirect('home')
     else:
-        form = CustomAuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
+        form = AuthenticationForm()
+    phone_form = PhoneLoginForm()
+    return render(request, 'accounts/login.html', {'form': form, 'phone_form': phone_form})
+
+
+def handle_phone_auth(request):
+    phone = request.POST.get('phone')
+    if phone:
+        # Send OTP using phone.email service
+        response = requests.post('https://phone.email/send', data={
+            'phone': phone,
+            'api_key': 'oxELv6LvCjcBlSAdMUcPm4IKNsXrkhAc'
+        })
+        if response.status_code == 200:
+            # Store phone number in session for verification
+            request.session['phone_login'] = phone
+            return redirect('accounts:verify_otp')
+    # If phone is not provided or API call failed, redirect back with error
+    return redirect(request.path)
+
+
+def verify_otp(request):
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        phone = request.session.get('phone_login')
+        if phone and otp:
+            # Verify OTP using phone.email service
+            response = requests.post('https://phone.email/verify', data={
+                'phone': phone,
+                'code': otp,
+                'api_key': 'oxELv6LvCjcBlSAdMUcPm4IKNsXrkhAc'
+            })
+            if response.status_code == 200:
+                # OTP verified, log in or create user
+                user, created = CustomUser.objects.get_or_create(phone=phone)
+                login(request, user)
+                del request.session['phone_login']
+                return redirect('home')
+    return render(request, 'accounts/verify_otp.html')
 
 
 @login_required

@@ -121,3 +121,4 @@ def user_search(request):
         Q(phone__icontains=query)
     ) if query else CustomUser.objects.none()
     return render(request, 'accounts/user_search.html', {'users': users, 'query': query})
+###
